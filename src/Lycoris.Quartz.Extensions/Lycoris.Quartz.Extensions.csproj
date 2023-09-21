@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>6.1.5</Version>
+    <Authors>lycoris</Authors>
+    <PackageIcon>lycoris-nuget-logo.png</PackageIcon>
+    <PackageReadmeFile>Readme.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/lycoris-xmin/Quartz.Extensions</RepositoryUrl>
+    <Description>基于Quartz做了一层简单封装，支持Scoped生命周期直接在构造函数注入,简化了使用成本。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\lycoris-nuget-logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\Readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Quartz" Version="3.5.0" />
+  </ItemGroup>
+
+</Project>
