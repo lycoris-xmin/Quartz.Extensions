@@ -224,7 +224,7 @@ namespace Lycoris.Quartz.Extensions.Services
             var option = options.Where(x => x.JobType == typeof(T)).SingleOrDefault();
 
             // 检查任务是否已存在
-            var job = new JobKey(option.JobKey, option.JobGroup);
+            var job = new JobKey(Guid.NewGuid().ToString(), option.JobGroup);
             if (await scheduler.CheckExists(job))
             {
                 if (option.Args == null)
