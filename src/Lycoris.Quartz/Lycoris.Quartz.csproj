@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.00-rc-1.0</Version>
+    <Version>1.0.1</Version>
     <Authors>lycoris</Authors>
     <PackageIcon>lycoris-nuget-logo.png</PackageIcon>
     <PackageReadmeFile>Readme.md</PackageReadmeFile>

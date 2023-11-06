@@ -367,7 +367,7 @@ namespace Lycoris.Quartz.Extensions.Services
 
             foreach (var item in options)
             {
-                if (item.Standby)
+                if (!item.Standby)
                     await AddJobAsync(item);
             }
         }
