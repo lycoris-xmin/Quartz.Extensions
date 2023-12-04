@@ -222,9 +222,10 @@ namespace Lycoris.Quartz.Extensions.Services
         {
             var options = _serviceProvider.GetServices<QuartzSchedulerOption>();
             var option = options.Where(x => x.JobType == typeof(T)).SingleOrDefault();
+            option.JobKey = Guid.NewGuid().ToString();
 
             // 检查任务是否已存在
-            var job = new JobKey(Guid.NewGuid().ToString(), option.JobGroup);
+            var job = new JobKey(option.JobKey, option.JobGroup);
             if (await scheduler.CheckExists(job))
             {
                 if (option.Args == null)
