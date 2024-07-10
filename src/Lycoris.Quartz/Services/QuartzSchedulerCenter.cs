@@ -211,21 +211,65 @@ namespace Lycoris.Quartz.Extensions.Services
         /// <typeparam name="TArgs"></typeparam>
         /// <param name="args">启动参数</param>
         /// <returns></returns>
-        public Task AddOnceJobAsync<T, TArgs>(TArgs args) where T : IJob where TArgs : class => AddOnceJobAsync<T>(Newtonsoft.Json.JsonConvert.SerializeObject(args));
+        public Task AddOnceJobAsync<T, TArgs>(TArgs args) where T : IJob where TArgs : class => AddOnceJobAsync<T, TArgs>(args, Guid.NewGuid().ToString("N"));
 
         /// <summary>
         /// 添加单次执行任务
         /// </summary>
         /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="jobKey"></param>
         /// <returns></returns>
-        public async Task AddOnceJobAsync<T>(string args) where T : IJob
+        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey) where T : IJob where TArgs : class => AddOnceJobAsync<T, TArgs>(args, jobKey, $"once-job-{Guid.NewGuid():N}");
+
+        /// <summary>
+        /// 添加单次执行任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TArgs"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="jobKey"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey, string jobGroup) where T : IJob where TArgs : class => AddOnceJobAsync<T>(Newtonsoft.Json.JsonConvert.SerializeObject(args), jobKey, jobGroup);
+
+        /// <summary>
+        /// 添加单次执行任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        public Task AddOnceJobAsync<T>(string args) where T : IJob => AddOnceJobAsync<T>(args, Guid.NewGuid().ToString("N"));
+
+        /// <summary>
+        /// 添加单次执行任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="jobKey"></param>
+        /// <returns></returns>
+        public Task AddOnceJobAsync<T>(string args, string jobKey) where T : IJob => AddOnceJobAsync<T>(args, jobKey, $"once-job-{Guid.NewGuid():N}");
+
+        /// <summary>
+        /// 添加单次执行任务
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="args"></param>
+        /// <param name="jobKey"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        public async Task AddOnceJobAsync<T>(string args, string jobKey, string jobGroup) where T : IJob
         {
             var options = _serviceProvider.GetServices<QuartzSchedulerOption>();
+
             var option = options.Where(x => x.JobType == typeof(T)).SingleOrDefault();
-            option.JobKey = Guid.NewGuid().ToString();
+
+            option.JobKey = jobKey;
 
             // 检查任务是否已存在
-            var job = new JobKey(option.JobKey, option.JobGroup);
+            var job = new JobKey(option.JobKey, jobGroup);
+
             if (await scheduler.CheckExists(job))
             {
                 if (option.Args == null)
@@ -252,7 +296,7 @@ namespace Lycoris.Quartz.Extensions.Services
                 RunTimes = 1,
                 BeginTime = new DateTime(2000, 1, 1),
                 JobName = option.JobName,
-                JobGroup = string.IsNullOrEmpty(option.JobGroup) ? "unclassified" : option.JobGroup,
+                JobGroup = "once-job",
                 JobKey = option.JobKey,
                 Args = args
             });
