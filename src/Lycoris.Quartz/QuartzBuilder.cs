@@ -1,5 +1,6 @@
 ﻿using Lycoris.Quartz.Extensions.Listener;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 
 namespace Lycoris.Quartz.Extensions
@@ -29,7 +30,7 @@ namespace Lycoris.Quartz.Extensions
         /// <returns></returns>
         public QuartzBuilder AddSchedulerListener<T>() where T : SchedulerListener
         {
-            services.AddSingleton<ISchedulerListener, T>();
+            services.TryAddSingleton<ISchedulerListener, T>();
             return this;
         }
 
@@ -40,7 +41,7 @@ namespace Lycoris.Quartz.Extensions
         /// <returns></returns>
         public QuartzBuilder AddJobListener<T>() where T : JobListener
         {
-            services.AddSingleton<IJobListener, T>();
+            services.TryAddSingleton<IJobListener, T>();
             return this;
         }
 
@@ -51,7 +52,7 @@ namespace Lycoris.Quartz.Extensions
         /// <returns></returns>
         public QuartzBuilder AddTriggerListener<T>() where T : TriggerListener
         {
-            services.AddSingleton<ITriggerListener, T>();
+            services.TryAddSingleton<ITriggerListener, T>();
             return this;
         }
 

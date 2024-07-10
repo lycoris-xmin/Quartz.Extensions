@@ -158,10 +158,10 @@ namespace Lycoris.Quartz.Extensions.Services
             var jobBuilder = JobBuilder.Create(sche.JobType);
 
             // 定义这个工作,并将其绑定到我们的IJob实现类                
-            var job = jobBuilder.UsingJobData(QuartzConstant.JobKey, sche.JobKey)
-                                .UsingJobData(QuartzConstant.JobName, sche.JobName)
-                                .UsingJobDataIf(!string.IsNullOrEmpty(sche.JsonMap), QuartzConstant.JobJsonMap, sche.JsonMap)
-                                .UsingJobData(QuartzConstant.JobArgs, sche.Args)
+            var job = jobBuilder.UsingJobData(QuartzConstant.JOB_KEY, sche.JobKey)
+                                .UsingJobData(QuartzConstant.JOB_NAME, sche.JobName)
+                                .UsingJobDataIf(!string.IsNullOrEmpty(sche.JsonMap), QuartzConstant.JSON_MAP, sche.JsonMap)
+                                .UsingJobData(QuartzConstant.JOB_ARGS, sche.Args)
                                 .WithDescription(sche.Remark)
                                 .WithIdentity(sche.JobKey, sche.JobGroup)
                                 .Build();
@@ -279,7 +279,8 @@ namespace Lycoris.Quartz.Extensions.Services
                 }
 
                 var detail = await scheduler.GetJobDetail(job);
-                if (detail.JobDataMap.ContainsKey(QuartzConstant.JobArgs) && detail.JobDataMap.GetString(QuartzConstant.JobArgs) == option.Args)
+
+                if (detail.JobDataMap.ContainsKey(QuartzConstant.JOB_ARGS) && detail.JobDataMap.GetString(QuartzConstant.JOB_ARGS) == option.Args)
                 {
                     await scheduler.TriggerJob(job);
                     return;
@@ -298,7 +299,8 @@ namespace Lycoris.Quartz.Extensions.Services
                 JobName = option.JobName,
                 JobGroup = "once-job",
                 JobKey = option.JobKey,
-                Args = args
+                Args = args,
+                JsonMap = QuartzConstant.ONCE_JOB
             });
         }
 
@@ -321,7 +323,7 @@ namespace Lycoris.Quartz.Extensions.Services
             var jobDetail = await scheduler.GetJobDetail(job);
             if (jobDetail != null)
             {
-                var endTime = jobDetail.JobDataMap.GetString(QuartzConstant.EndTime);
+                var endTime = jobDetail.JobDataMap.GetString(QuartzConstant.END_TIME);
                 if (!string.IsNullOrEmpty(endTime) && DateTime.Parse(endTime) <= DateTime.Now)
                     throw new Exception($"this job {jobKey} has expired");
             }

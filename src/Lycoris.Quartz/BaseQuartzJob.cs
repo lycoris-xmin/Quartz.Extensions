@@ -40,11 +40,11 @@ namespace Lycoris.Quartz.Extensions
 
             // 任务唯一标识Id
             this.JobTraceId = SetJobTraceId(this.Context);
-            this.Context.AddJobDataMap(QuartzConstant.JobTraceId, JobTraceId);
+            this.Context.AddJobDataMap(QuartzConstant.TRACE_ID, JobTraceId);
 
             // 清除上一次的错误提示信息
-            if (this.Context.JobDetail.JobDataMap.ContainsKey(QuartzConstant.JobException))
-                this.Context.JobDetail.JobDataMap[QuartzConstant.JobException] = null;
+            if (this.Context.JobDetail.JobDataMap.ContainsKey(QuartzConstant.EXCEPTION))
+                this.Context.JobDetail.JobDataMap[QuartzConstant.EXCEPTION] = null;
 
             // 查看是否时间到期
             var endTime = this.Context.GetEndTime();

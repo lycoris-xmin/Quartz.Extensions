@@ -1,4 +1,6 @@
-﻿using Quartz;
+﻿using Lycoris.Quartz.Extensions.Constant;
+using Quartz;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,6 +39,14 @@ namespace Lycoris.Quartz.Extensions.Listener
         /// <param name="jobException"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public virtual Task JobWasExecuted(IJobExecutionContext jobContext, JobExecutionException jobException, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public virtual async Task JobWasExecuted(IJobExecutionContext jobContext, JobExecutionException jobException, CancellationToken cancellationToken = default)
+        {
+            var jsonMap = jobContext.GetJobDataMap(QuartzConstant.JSON_MAP);
+
+            if (jsonMap == QuartzConstant.ONCE_JOB)
+            {
+                await jobContext.Scheduler.DeleteJob(jobContext.JobDetail.Key);
+            }
+        }
     }
 }

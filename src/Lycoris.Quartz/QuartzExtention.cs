@@ -14,14 +14,14 @@ namespace Lycoris.Quartz.Extensions
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string GetJobTraceId(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JobTraceId) as string;
+        public static string GetJobTraceId(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.TRACE_ID) as string;
 
         /// <summary>
         /// 获取调度任务名称
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string GetJobName(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JobName) as string ?? "";
+        public static string GetJobName(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JOB_NAME) as string ?? "";
 
         /// <summary>
         /// 获取任务结束时间
@@ -30,7 +30,7 @@ namespace Lycoris.Quartz.Extensions
         /// <returns></returns>
         public static DateTime? GetEndTime(this IJobExecutionContext context)
         {
-            var val = context.JobDetail.JobDataMap.Get(QuartzConstant.EndTime) as string;
+            var val = context.JobDetail.JobDataMap.Get(QuartzConstant.END_TIME) as string;
 
             if (!DateTime.TryParse(val, out DateTime dt))
                 return null;
@@ -43,7 +43,7 @@ namespace Lycoris.Quartz.Extensions
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string GetJobArgs(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JobArgs) as string ?? "";
+        public static string GetJobArgs(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JOB_ARGS) as string ?? "";
 
         /// <summary>
         /// 获取任务启动参数
@@ -62,14 +62,14 @@ namespace Lycoris.Quartz.Extensions
         /// </summary>
         /// <param name="context"></param>
         /// <param name="ex"></param>
-        public static void AddJobException(this IJobExecutionContext context, Exception ex) => context.JobDetail.JobDataMap.Put(QuartzConstant.JobException, ex);
+        public static void AddJobException(this IJobExecutionContext context, Exception ex) => context.JobDetail.JobDataMap.Put(QuartzConstant.EXCEPTION, ex);
 
         /// <summary>
         /// 获取调度任务错误信息
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static Exception GetJobException(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.JobException) as Exception;
+        public static Exception GetJobException(this IJobExecutionContext context) => context.JobDetail.JobDataMap.Get(QuartzConstant.EXCEPTION) as Exception;
 
         /// <summary>
         /// 添加自定义信息

@@ -1,6 +1,8 @@
-﻿using Lycoris.Quartz.Extensions.Options;
+﻿using Lycoris.Quartz.Extensions.Listener;
+using Lycoris.Quartz.Extensions.Options;
 using Lycoris.Quartz.Extensions.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
@@ -32,7 +34,11 @@ namespace Lycoris.Quartz.Extensions
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
-        public static IServiceCollection AddQuartzSchedulerCenter(this IServiceCollection services) => services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>().AddBaseQuartzSchedulerCenter();
+        public static IServiceCollection AddQuartzSchedulerCenter(this IServiceCollection services)
+        {
+            services.TryAddSingleton<IJobListener, JobListener>();
+            return services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>().AddBaseQuartzSchedulerCenter();
+        }
 
         /// <summary>
         /// 添加Quartz调度任务服务
@@ -56,6 +62,8 @@ namespace Lycoris.Quartz.Extensions
 
                 return new StdSchedulerFactory(options);
             }).AddBaseQuartzSchedulerCenter();
+
+            services.TryAddSingleton<IJobListener, JobListener>();
 
             if (buidler.EnableRunStandbyJobOnApplicationStart)
                 services.AddHostedService<DefaultQuartzJobHostedService>();
