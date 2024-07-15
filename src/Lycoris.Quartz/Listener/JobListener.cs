@@ -1,10 +1,9 @@
-﻿using Lycoris.Quartz.Extensions.Constant;
+﻿using Lycoris.Quartz.Constant;
 using Quartz;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions.Listener
+namespace Lycoris.Quartz.Listener
 {
     /// <summary>
     /// 

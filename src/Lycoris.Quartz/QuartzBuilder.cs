@@ -1,9 +1,9 @@
-﻿using Lycoris.Quartz.Extensions.Listener;
+﻿using Lycoris.Quartz.Listener;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
 
-namespace Lycoris.Quartz.Extensions
+namespace Lycoris.Quartz
 {
     /// <summary>
     /// 

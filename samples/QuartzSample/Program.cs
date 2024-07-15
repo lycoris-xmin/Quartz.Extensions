@@ -1,4 +1,4 @@
-using Lycoris.Quartz.Extensions;
+using Lycoris.Quartz;
 using Microsoft.AspNetCore.Mvc;
 using QuartzSample;
 
@@ -29,7 +29,10 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", async ([FromServices] IQuartzSchedulerCenter center) =>
 {
-    await center.AddOnceJobAsync<TestJob3>("测试启动参数");
+    for (int i = 0; i < 10; i++)
+    {
+        await center.AddOnceJobAsync<TestJob3>($"测试启动参数-{i}");
+    }
 
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast

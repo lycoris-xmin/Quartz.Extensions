@@ -3,7 +3,7 @@ using Quartz;
 using System;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions.Services
+namespace Lycoris.Quartz.Services
 {
     /// <summary>
     /// 

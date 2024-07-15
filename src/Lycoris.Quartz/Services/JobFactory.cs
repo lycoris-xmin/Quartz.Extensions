@@ -3,7 +3,7 @@ using Quartz;
 using Quartz.Spi;
 using System;
 
-namespace Lycoris.Quartz.Extensions.Services
+namespace Lycoris.Quartz.Services
 {
     /// <summary>
     /// 

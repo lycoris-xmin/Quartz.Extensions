@@ -1,4 +1,4 @@
-﻿using Lycoris.Quartz.Extensions;
+﻿using Lycoris.Quartz;
 
 namespace QuartzSample
 {

@@ -1,9 +1,9 @@
-﻿using Lycoris.Quartz.Extensions.Constant;
+﻿using Lycoris.Quartz.Constant;
 using Quartz;
 using System;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions
+namespace Lycoris.Quartz
 {
     /// <summary>
     /// [PersistJobDataAfterExecution] 这一次的结果作为值传给下一次
@@ -33,25 +33,25 @@ namespace Lycoris.Quartz.Extensions
         /// <returns></returns>
         public async Task Execute(IJobExecutionContext JobContext)
         {
-            this.Context = JobContext;
+            Context = JobContext;
 
             // 任务名称
-            this.JobName = JobContext.GetJobName();
+            JobName = JobContext.GetJobName();
 
             // 任务唯一标识Id
-            this.JobTraceId = SetJobTraceId(this.Context);
-            this.Context.AddJobDataMap(QuartzConstant.TRACE_ID, JobTraceId);
+            JobTraceId = SetJobTraceId(Context);
+            Context.AddJobDataMap(QuartzConstant.TRACE_ID, JobTraceId);
 
             // 清除上一次的错误提示信息
-            if (this.Context.JobDetail.JobDataMap.ContainsKey(QuartzConstant.EXCEPTION))
-                this.Context.JobDetail.JobDataMap[QuartzConstant.EXCEPTION] = null;
+            if (Context.JobDetail.JobDataMap.ContainsKey(QuartzConstant.EXCEPTION))
+                Context.JobDetail.JobDataMap[QuartzConstant.EXCEPTION] = null;
 
             // 查看是否时间到期
-            var endTime = this.Context.GetEndTime();
+            var endTime = Context.GetEndTime();
             // 如果到期则停止任务
             if (endTime.HasValue && endTime <= DateTime.Now)
             {
-                await this.Context.Scheduler.PauseJob(new JobKey(JobContext.JobDetail.Key.Name, JobContext.JobDetail.Key.Group));
+                await Context.Scheduler.PauseJob(new JobKey(JobContext.JobDetail.Key.Name, JobContext.JobDetail.Key.Group));
                 return;
             }
 
@@ -64,7 +64,7 @@ namespace Lycoris.Quartz.Extensions
                 if (ex is JobExecutionException)
                     throw;
 
-                this.Context.AddJobException(ex);
+                Context.AddJobException(ex);
             }
         }
 

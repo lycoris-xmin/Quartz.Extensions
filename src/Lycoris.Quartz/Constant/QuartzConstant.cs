@@ -1,4 +1,4 @@
-﻿namespace Lycoris.Quartz.Extensions.Constant
+﻿namespace Lycoris.Quartz.Constant
 {
     /// <summary>
     /// 

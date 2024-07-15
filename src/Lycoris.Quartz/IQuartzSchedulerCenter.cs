@@ -1,8 +1,8 @@
-﻿using Lycoris.Quartz.Extensions.Options;
+﻿using Lycoris.Quartz.Options;
 using Quartz;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions
+namespace Lycoris.Quartz
 {
     /// <summary>
     /// 

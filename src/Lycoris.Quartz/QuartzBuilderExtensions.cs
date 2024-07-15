@@ -1,6 +1,6 @@
-﻿using Lycoris.Quartz.Extensions.Listener;
-using Lycoris.Quartz.Extensions.Options;
-using Lycoris.Quartz.Extensions.Services;
+﻿using Lycoris.Quartz.Listener;
+using Lycoris.Quartz.Options;
+using Lycoris.Quartz.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
@@ -9,7 +9,7 @@ using Quartz.Spi;
 using System;
 using System.Collections.Specialized;
 
-namespace Lycoris.Quartz.Extensions
+namespace Lycoris.Quartz
 {
     /// <summary>
     /// 

@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions.Listener
+namespace Lycoris.Quartz.Listener
 {
     /// <summary>
     /// 

@@ -1,6 +1,6 @@
-﻿using Lycoris.Quartz.Extensions.Constant;
-using Lycoris.Quartz.Extensions.Exceptions;
-using Lycoris.Quartz.Extensions.Options;
+﻿using Lycoris.Quartz.Constant;
+using Lycoris.Quartz.Exceptions;
+using Lycoris.Quartz.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Lycoris.Quartz.Extensions.Services
+namespace Lycoris.Quartz.Services
 {
     /// <summary>
     /// 
@@ -297,7 +297,7 @@ namespace Lycoris.Quartz.Extensions.Services
                 RunTimes = 1,
                 BeginTime = new DateTime(2000, 1, 1),
                 JobName = option.JobName,
-                JobGroup = "once-job",
+                JobGroup = jobGroup,
                 JobKey = option.JobKey,
                 Args = args,
                 JsonMap = QuartzConstant.ONCE_JOB

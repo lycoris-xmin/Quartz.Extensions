@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lycoris.Quartz.Extensions.Exceptions
+namespace Lycoris.Quartz.Exceptions
 {
     /// <summary>
     /// 

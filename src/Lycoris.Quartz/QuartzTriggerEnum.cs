@@ -1,4 +1,4 @@
-﻿namespace Lycoris.Quartz.Extensions
+﻿namespace Lycoris.Quartz
 {
     /// <summary>
     /// 

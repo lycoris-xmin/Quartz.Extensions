@@ -1,11 +1,11 @@
-﻿using Lycoris.Quartz.Extensions.Options;
+﻿using Lycoris.Quartz.Options;
 using Quartz;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace Lycoris.Quartz.Extensions
+namespace Lycoris.Quartz
 {
     internal class QuartzJobHelper
     {

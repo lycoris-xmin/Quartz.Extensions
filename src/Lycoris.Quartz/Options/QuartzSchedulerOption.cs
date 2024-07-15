@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lycoris.Quartz.Extensions.Options
+namespace Lycoris.Quartz.Options
 {
     /// <summary>
     /// 
