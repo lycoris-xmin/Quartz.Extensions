@@ -27,7 +27,7 @@ namespace Lycoris.Quartz.Services
         /// <param name="bundle"></param>
         /// <param name="scheduler"></param>
         /// <returns></returns>
-        public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler) => _serviceProvider.GetService<QuartzJobRunner>();
+        public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler) => _serviceProvider.GetRequiredService<QuartzJobRunner>();
 
         /// <summary>
         /// 

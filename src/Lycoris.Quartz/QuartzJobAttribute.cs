@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lycoris.Quartz.Constant;
+using System;
 
 namespace Lycoris.Quartz
 {
@@ -8,8 +9,6 @@ namespace Lycoris.Quartz
     [AttributeUsage(AttributeTargets.Class)]
     public class QuartzJobAttribute : Attribute
     {
-        private const string DefaultJobGroup = "unclassified";
-
         /// <summary>
         /// 任务名称
         /// </summary>
@@ -18,7 +17,7 @@ namespace Lycoris.Quartz
         /// <summary>
         /// 任务分组
         /// </summary>
-        public string JobGroup { get; set; } = DefaultJobGroup;
+        public string JobGroup { get; set; } = QuartzConstant.JOB_DEFAULT_GROUP;
 
         /// <summary>
         /// 触发器类型
@@ -46,6 +45,12 @@ namespace Lycoris.Quartz
         /// 默认：<see langword="false"/>
         /// </summary>
         public bool Standby { get; set; } = false;
+
+        /// <summary>
+        /// CRON定时器
+        /// 如果错过了某次调度（比如程序不在运行，或调度器尚未启动），那么启动后立即执行一次任务，然后按原计划继续执行。
+        /// </summary>
+        public bool CronRunOnProceed { get; set; } = false;
 
         /// <summary>
         /// 

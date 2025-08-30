@@ -1,5 +1,6 @@
 ﻿using Lycoris.Quartz.Options;
 using Quartz;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Lycoris.Quartz
@@ -149,5 +150,19 @@ namespace Lycoris.Quartz
         /// </summary>
         /// <returns></returns>
         Task ManualRunAllJobsAsync();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        Task<List<JobDetailModel>> GetAllJobDetailsAsync();
+
+        /// <summary>
+        /// 获取任务详细信息
+        /// </summary>
+        /// <param name="jobName"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        Task<JobDetailModel> GetJobDetailsAsync(string jobName, string jobGroup = null);
     }
 }

@@ -3,8 +3,10 @@ using Lycoris.Quartz.Exceptions;
 using Lycoris.Quartz.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Quartz;
+using Quartz.Impl.Matchers;
 using Quartz.Spi;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,7 +18,6 @@ namespace Lycoris.Quartz.Services
     /// </summary>
     public sealed class QuartzSchedulerCenter : IQuartzSchedulerCenter
     {
-        private const string DefaultJobGroup = "unclassified";
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
@@ -37,11 +38,12 @@ namespace Lycoris.Quartz.Services
         {
             _serviceProvider = serviceProvider;
 
-            var schedulerFactory = serviceProvider.GetService<ISchedulerFactory>() ?? throw new ArgumentNullException(nameof(ISchedulerFactory), "unable to resolve 'ISchedulerFactory' service from constructor");
+            var schedulerFactory = serviceProvider.GetRequiredService<ISchedulerFactory>()
+                ?? throw new ArgumentNullException(nameof(ISchedulerFactory), "unable to resolve 'ISchedulerFactory' service from constructor");
 
             scheduler = schedulerFactory.GetScheduler().GetAwaiter().GetResult();
 
-            jobFactory = serviceProvider.GetService<IJobFactory>();
+            jobFactory = serviceProvider.GetRequiredService<IJobFactory>();
         }
 
         /// <summary>
@@ -104,7 +106,7 @@ namespace Lycoris.Quartz.Services
         /// <returns></returns>
         public Task AddJobAsync<T>() where T : IJob
         {
-            var settings = typeof(T).GetCustomAttribute<QuartzJobAttribute>() ?? throw new Exception($"can not find QuartzJobAttribute by current job {typeof(T).Name},unable to add job");
+            var settings = typeof(T).GetCustomAttribute<QuartzJobAttribute>() ?? throw new Exception($"can not found QuartzJobAttribute by current job {typeof(T).Name},unable to add job");
 
             var option = new QuartzSchedulerOption()
             {
@@ -113,7 +115,7 @@ namespace Lycoris.Quartz.Services
                 Cron = settings.Cron,
                 IntervalSecond = settings.IntervalSecond,
                 RunTimes = settings.RunTimes,
-                JobGroup = string.IsNullOrEmpty(settings.JobGroup) ? "unclassified" : settings.JobGroup,
+                JobGroup = string.IsNullOrEmpty(settings.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : settings.JobGroup,
                 JobName = settings.JobName
             };
 
@@ -144,13 +146,13 @@ namespace Lycoris.Quartz.Services
                 throw new Exception($"{sche.JobType.FullName} must implement 'IJob' or inherit the base class 'BaseQuartzJob'");
 
             if (string.IsNullOrEmpty(sche.JobGroup))
-                sche.JobGroup = DefaultJobGroup;
+                sche.JobGroup = QuartzConstant.JOB_DEFAULT_GROUP;
 
             if (sche.Trigger == QuartzTriggerEnum.SIMPLE && sche.IntervalSecond <= 0 || sche.Trigger == QuartzTriggerEnum.CRON && string.IsNullOrEmpty(sche.Cron))
                 throw new QuartzOptionException(sche.JobType, sche.Trigger);
 
             // 检查任务是否已存在
-            var jobKey = new JobKey(sche.JobKey, sche.JobGroup);
+            var jobKey = new JobKey(sche.JobName, sche.JobGroup);
 
             if (await scheduler.CheckExists(jobKey))
                 throw new Exception($"job name {sche.JobName} already exists");
@@ -158,12 +160,13 @@ namespace Lycoris.Quartz.Services
             var jobBuilder = JobBuilder.Create(sche.JobType);
 
             // 定义这个工作,并将其绑定到我们的IJob实现类                
-            var job = jobBuilder.UsingJobData(QuartzConstant.JOB_KEY, sche.JobKey)
-                                .UsingJobData(QuartzConstant.JOB_NAME, sche.JobName)
+            var job = jobBuilder.UsingJobData(QuartzConstant.JOB_NAME, sche.JobName)
                                 .UsingJobDataIf(!string.IsNullOrEmpty(sche.JsonMap), QuartzConstant.JSON_MAP, sche.JsonMap)
                                 .UsingJobData(QuartzConstant.JOB_ARGS, sche.Args)
+                                .UsingJobData(QuartzConstant.JOB_OPTIONS, Newtonsoft.Json.JsonConvert.SerializeObject(sche))
+                                .UsingJobData(QuartzConstant.JOB_RUN_COUNT, 0L)
                                 .WithDescription(sche.Remark)
-                                .WithIdentity(sche.JobKey, sche.JobGroup)
+                                .WithIdentity(sche.JobName, sche.JobGroup)
                                 .Build();
 
             var trigger = sche.Trigger == QuartzTriggerEnum.CRON
@@ -185,7 +188,7 @@ namespace Lycoris.Quartz.Services
             var option = options.Where(x => x.JobType == typeof(T)).SingleOrDefault();
 
             // 检查任务是否已存在
-            var job = new JobKey(option.JobKey, option.JobGroup);
+            var job = new JobKey(option.JobName, option.JobGroup);
             if (await scheduler.CheckExists(job))
             {
                 await scheduler.TriggerJob(job);
@@ -199,8 +202,7 @@ namespace Lycoris.Quartz.Services
                 RunTimes = 1,
                 BeginTime = new DateTime(2000, 1, 1),
                 JobName = option.JobName,
-                JobGroup = string.IsNullOrEmpty(option.JobGroup) ? "unclassified" : option.JobGroup,
-                JobKey = option.JobKey,
+                JobGroup = string.IsNullOrEmpty(option.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : option.JobGroup
             });
         }
 
@@ -221,7 +223,8 @@ namespace Lycoris.Quartz.Services
         /// <param name="args"></param>
         /// <param name="jobKey"></param>
         /// <returns></returns>
-        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey) where T : IJob where TArgs : class => AddOnceJobAsync<T, TArgs>(args, jobKey, $"once-job-{Guid.NewGuid():N}");
+        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey) where T : IJob where TArgs : class
+            => AddOnceJobAsync<T, TArgs>(args, jobKey, $"once-job-{Guid.NewGuid():N}");
 
         /// <summary>
         /// 添加单次执行任务
@@ -232,7 +235,8 @@ namespace Lycoris.Quartz.Services
         /// <param name="jobKey"></param>
         /// <param name="jobGroup"></param>
         /// <returns></returns>
-        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey, string jobGroup) where T : IJob where TArgs : class => AddOnceJobAsync<T>(Newtonsoft.Json.JsonConvert.SerializeObject(args), jobKey, jobGroup);
+        public Task AddOnceJobAsync<T, TArgs>(TArgs args, string jobKey, string jobGroup) where T : IJob where TArgs : class
+            => AddOnceJobAsync<T>(Newtonsoft.Json.JsonConvert.SerializeObject(args), jobKey, jobGroup);
 
         /// <summary>
         /// 添加单次执行任务
@@ -265,10 +269,8 @@ namespace Lycoris.Quartz.Services
 
             var option = options.Where(x => x.JobType == typeof(T)).SingleOrDefault();
 
-            option.JobKey = jobKey;
-
             // 检查任务是否已存在
-            var job = new JobKey(option.JobKey, jobGroup);
+            var job = new JobKey(option.JobName, jobGroup);
 
             if (await scheduler.CheckExists(job))
             {
@@ -298,7 +300,6 @@ namespace Lycoris.Quartz.Services
                 BeginTime = new DateTime(2000, 1, 1),
                 JobName = option.JobName,
                 JobGroup = jobGroup,
-                JobKey = option.JobKey,
                 Args = args,
                 JsonMap = QuartzConstant.ONCE_JOB
             });
@@ -313,7 +314,7 @@ namespace Lycoris.Quartz.Services
         public async Task StartJobAsync(string jobKey, string jobGroup = "")
         {
             if (string.IsNullOrEmpty(jobGroup))
-                jobGroup = DefaultJobGroup;
+                jobGroup = QuartzConstant.JOB_DEFAULT_GROUP;
 
             //检查任务是否存在
             var job = new JobKey(jobKey, jobGroup);
@@ -345,7 +346,7 @@ namespace Lycoris.Quartz.Services
         public async Task StopJobAsync(string jobKey, string jobGroup = "")
         {
             if (string.IsNullOrEmpty(jobGroup))
-                jobGroup = DefaultJobGroup;
+                jobGroup = QuartzConstant.JOB_DEFAULT_GROUP;
 
             //检查任务是否存在
             var job = new JobKey(jobKey, jobGroup);
@@ -368,7 +369,7 @@ namespace Lycoris.Quartz.Services
         public async Task RemoveobAsync(string jobKey, string jobGroup = "")
         {
             if (string.IsNullOrEmpty(jobGroup))
-                jobGroup = DefaultJobGroup;
+                jobGroup = QuartzConstant.JOB_DEFAULT_GROUP;
 
             //检查任务是否存在
             var job = new JobKey(jobKey, jobGroup);
@@ -391,7 +392,7 @@ namespace Lycoris.Quartz.Services
         public async Task RunJobAsync(string jobKey, string jobGroup)
         {
             if (string.IsNullOrEmpty(jobGroup))
-                jobGroup = DefaultJobGroup;
+                jobGroup = QuartzConstant.JOB_DEFAULT_GROUP;
 
             //检查任务是否存在
             var job = new JobKey(jobKey, jobGroup);
@@ -435,6 +436,75 @@ namespace Lycoris.Quartz.Services
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<JobDetailModel>> GetAllJobDetailsAsync()
+        {
+            var jboKeyList = new List<JobKey>();
+            var list = new List<JobDetailModel>();
+
+            var groupNames = await scheduler.GetJobGroupNames();
+
+            foreach (var groupName in groupNames.OrderBy(t => t))
+                jboKeyList.AddRange(await scheduler.GetJobKeys(GroupMatcher<JobKey>.GroupEquals(groupName)));
+
+            foreach (var jobKey in jboKeyList.OrderBy(t => t.Name))
+            {
+                list.Add(await this.GetJobDetailsAsync(jobKey));
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// 任务详细信息
+        /// </summary>
+        /// <param name="jobName"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        public Task<JobDetailModel> GetJobDetailsAsync(string jobName, string jobGroup = null)
+            => this.GetJobDetailsAsync(new JobKey(jobName, jobGroup ?? QuartzConstant.JOB_DEFAULT_GROUP));
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="jobKey"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        public async Task<JobDetailModel> GetJobDetailsAsync(JobKey jobKey)
+        {
+            if (!await scheduler.CheckExists(jobKey))
+                return null;
+
+            var data = new JobDetailModel();
+
+            var jobDetail = await scheduler.GetJobDetail(jobKey);
+            var triggers = (await scheduler.GetTriggersOfJob(jobKey)).First();
+
+            data.JobKey = jobDetail.Key.ToString();
+            data.JobName = jobDetail.JobDataMap.GetString(QuartzConstant.JOB_NAME);
+            data.JobGroup = jobKey.Group;
+            data.JobDescription = jobDetail.Description;
+            data.TriggerType = triggers is ISimpleTrigger ? QuartzTriggerEnum.SIMPLE : QuartzTriggerEnum.CRON;
+            data.Status = await scheduler.GetTriggerState(triggers.Key);
+            data.Cron = (triggers as ICronTrigger)?.CronExpressionString;
+            data.IntervalSeconds = (int)Math.Ceiling((triggers as ISimpleTrigger)?.RepeatInterval.TotalSeconds ?? 0);
+            data.RunTimes = (triggers as ISimpleTrigger)?.RepeatCount ?? 0;
+            data.BeginTime = triggers.StartTimeUtc.LocalDateTime;
+            data.PreviousFireTime = triggers.GetPreviousFireTimeUtc()?.LocalDateTime;
+            data.NextFireTime = triggers.GetNextFireTimeUtc()?.LocalDateTime;
+
+            var endTime = jobDetail.JobDataMap.Get(QuartzConstant.END_TIME);
+            if (endTime != null && endTime is string value && !string.IsNullOrEmpty(value))
+                data.EndTime = DateTime.Parse(value);
+
+            data.RunCount = jobDetail.JobDataMap.GetLong(QuartzConstant.JOB_RUN_COUNT);
+
+            return data;
+        }
+
+        /// <summary>
         /// 创建类型Cron的触发器
         /// </summary>
         /// <param name="sche"></param>
@@ -442,7 +512,7 @@ namespace Lycoris.Quartz.Services
         private static ITrigger CreateCronTrigger(QuartzSchedulerOption sche)
         {
             var trigger = TriggerBuilder.Create();
-            trigger = trigger.WithIdentity(sche.JobKey, sche.JobGroup);
+            trigger = trigger.WithIdentity(sche.JobName, sche.JobGroup);
 
             //开始时间
             trigger = trigger.StartAt(sche.BeginTime);
@@ -452,10 +522,13 @@ namespace Lycoris.Quartz.Services
                 trigger = trigger.EndAt(sche.EndTime);
 
             // 作业触发器
-            trigger = trigger.WithCronSchedule(sche.Cron, cronScheduleBuilder => cronScheduleBuilder.WithMisfireHandlingInstructionFireAndProceed())
-                             .ForJob(sche.JobKey, sche.JobGroup);
+            if (sche.CronRunOnProceed)
+                trigger.WithCronSchedule(sche.Cron, cronScheduleBuilder => cronScheduleBuilder.WithMisfireHandlingInstructionFireAndProceed());
+            else
+                trigger.WithCronSchedule(sche.Cron, cronScheduleBuilder => cronScheduleBuilder.WithMisfireHandlingInstructionFireAndProceed());
+            //WithMisfireHandlingInstructionDoNothing
 
-            return trigger.Build();
+            return trigger.ForJob(sche.JobName, sche.JobGroup).Build();
         }
 
         /// <summary>
@@ -467,7 +540,7 @@ namespace Lycoris.Quartz.Services
         {
             var triggerBulider = TriggerBuilder.Create();
 
-            triggerBulider = triggerBulider.WithIdentity(sche.JobKey, sche.JobGroup)
+            triggerBulider = triggerBulider.WithIdentity(sche.JobName, sche.JobGroup)
                                            .StartAt(sche.BeginTime);
 
             if (sche.EndTime.HasValue)
@@ -490,35 +563,33 @@ namespace Lycoris.Quartz.Services
                 }
             });
 
-            return triggerBulider.ForJob(sche.JobKey, sche.JobGroup).Build();
+            return triggerBulider.ForJob(sche.JobName, sche.JobGroup).Build();
         }
 
         /// <summary>
-        /// 判断一个类是否实现了某个接口
+        /// 判断一个类是否实现了某个接口（支持泛型接口）
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type"></param>
-        /// <returns></returns>
+        /// <typeparam name="T">目标接口类型</typeparam>
+        /// <param name="type">需要检查的类型</param>
+        /// <returns>是否实现了接口</returns>
         private static bool IsInterfaceFrom<T>(Type type)
         {
-            var @interface = typeof(T);
+            var targetInterface = typeof(T);
 
-            var intarfaces = type.GetInterfaces();
-            if (intarfaces == null || intarfaces.Length == 0)
+            if (!targetInterface.IsInterface)
+                throw new ArgumentException("T 必须是接口类型");
+
+            // 直接从 type 获取所有接口
+            var interfaces = type.GetInterfaces();
+            if (interfaces == null || interfaces.Length == 0)
                 return false;
 
-            if (@interface.IsGenericType)
-            {
-                foreach (var item in intarfaces)
-                {
-                    if (item.GetGenericTypeDefinition() == @interface)
-                        return true;
-                }
-            }
-            else
-                return intarfaces.Any(x => x == @interface);
-
-            return false;
+            return interfaces.Any(i =>
+                i == targetInterface ||                              // 直接等于
+                (targetInterface.IsGenericTypeDefinition &&         // T 是开放泛型接口定义
+                 i.IsGenericType &&
+                 i.GetGenericTypeDefinition() == targetInterface)   // i 是泛型，并且定义相同
+            );
         }
     }
 }

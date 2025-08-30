@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lycoris.Quartz.Constant;
+using System;
 
 namespace Lycoris.Quartz.Options
 {
@@ -18,11 +19,6 @@ namespace Lycoris.Quartz.Options
         public bool Standby { get; set; }
 
         /// <summary>
-        /// 作业编号
-        /// </summary>
-        public string JobKey { get; set; } = Guid.NewGuid().ToString();
-
-        /// <summary>
         /// 作业名称
         /// </summary>
         public string JobName { get; set; }
@@ -30,7 +26,7 @@ namespace Lycoris.Quartz.Options
         /// <summary>
         /// 分组名称
         /// </summary>
-        public string JobGroup { get; set; } = "localjob";
+        public string JobGroup { get; set; } = QuartzConstant.JOB_DEFAULT_GROUP;
 
         /// <summary>
         /// 开始时间
@@ -75,7 +71,12 @@ namespace Lycoris.Quartz.Options
         /// <summary>
         /// 
         /// </summary>
+        public string Args { get; set; }
 
-        internal string Args { get; set; }
+        /// <summary>
+        /// Cron
+        /// 如果错过了某次调度（比如程序不在运行，或调度器尚未启动），那么启动后立即执行一次任务，然后按原计划继续执行。
+        /// </summary>
+        public bool CronRunOnProceed { get; set; } = false;
     }
 }

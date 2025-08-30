@@ -1,6 +1,5 @@
 ﻿using Lycoris.Quartz.Options;
 using Microsoft.Extensions.Hosting;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -32,7 +31,6 @@ namespace Lycoris.Quartz
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        /// <exception cref="Exception"></exception>
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             await _quartzSchedulerCenter.StartScheduleAsync();

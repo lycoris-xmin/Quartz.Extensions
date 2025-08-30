@@ -1,4 +1,5 @@
-﻿using Lycoris.Quartz.Listener;
+﻿using Lycoris.Quartz.Constant;
+using Lycoris.Quartz.Listener;
 using Lycoris.Quartz.Options;
 using Lycoris.Quartz.Services;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ namespace Lycoris.Quartz
     public static class QuartzBuilderExtensions
     {
         /// <summary>
-        /// 
+        /// 添加基础调度任务服务
         /// </summary>
         /// <param name="services"></param>
         /// <returns></returns>
@@ -74,6 +75,36 @@ namespace Lycoris.Quartz
         /// <summary>
         /// 添加调度任务
         /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="services"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddQuartzSchedulerJob<T>(this IServiceCollection services) where T : IJob
+        {
+            var job = QuartzJobHelper.GetJob<T>();
+
+            var option = new QuartzSchedulerOption()
+            {
+                JobType = job.JobType,
+                Standby = job.JobSettings.Standby,
+                BeginTime = new DateTime(2000, 1, 1),
+                Trigger = job.JobSettings.Trigger,
+                Cron = job.JobSettings.Cron,
+                IntervalSecond = job.JobSettings.IntervalSecond,
+                RunTimes = job.JobSettings.RunTimes,
+                JobGroup = string.IsNullOrEmpty(job.JobSettings.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : job.JobSettings.JobGroup,
+                JobName = job.JobSettings.JobName,
+                CronRunOnProceed = job.JobSettings.CronRunOnProceed
+            };
+
+            services.AddScoped(job.JobType);
+            services.AddSingleton(option);
+
+            return services;
+        }
+
+        /// <summary>
+        /// 添加调度任务
+        /// </summary>
         /// <param name="services"></param>
         /// <param name="jobTypes"></param>
         /// <returns></returns>
@@ -95,42 +126,14 @@ namespace Lycoris.Quartz
                         Cron = item.JobSettings.Cron,
                         IntervalSecond = item.JobSettings.IntervalSecond,
                         RunTimes = item.JobSettings.RunTimes,
-                        JobGroup = string.IsNullOrEmpty(item.JobSettings.JobGroup) ? "unclassified" : item.JobSettings.JobGroup,
-                        JobName = item.JobSettings.JobName
+                        JobGroup = string.IsNullOrEmpty(item.JobSettings.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : item.JobSettings.JobGroup,
+                        JobName = item.JobSettings.JobName,
+                        CronRunOnProceed = item.JobSettings.CronRunOnProceed
                     };
 
                     services.AddSingleton(option);
                 }
             }
-
-            return services;
-        }
-
-        /// <summary>
-        /// 添加调度任务
-        /// </summary>
-        /// <param name="services"></param>
-        /// <param name="jobType"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddQuartzSchedulerJob(this IServiceCollection services, Type jobType)
-        {
-            var job = QuartzJobHelper.GetJob(jobType);
-
-            var option = new QuartzSchedulerOption()
-            {
-                JobType = job.JobType,
-                Standby = job.JobSettings.Standby,
-                BeginTime = new DateTime(2000, 1, 1),
-                Trigger = job.JobSettings.Trigger,
-                Cron = job.JobSettings.Cron,
-                IntervalSecond = job.JobSettings.IntervalSecond,
-                RunTimes = job.JobSettings.RunTimes,
-                JobGroup = string.IsNullOrEmpty(job.JobSettings.JobGroup) ? "unclassified" : job.JobSettings.JobGroup,
-                JobName = job.JobSettings.JobName
-            };
-
-            services.AddScoped(job.JobType);
-            services.AddSingleton(option);
 
             return services;
         }
@@ -152,35 +155,6 @@ namespace Lycoris.Quartz
             };
 
             configure.Invoke(option);
-
-            services.AddScoped(job.JobType);
-            services.AddSingleton(option);
-
-            return services;
-        }
-
-        /// <summary>
-        /// 添加调度任务
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="services"></param>
-        /// <returns></returns>
-        public static IServiceCollection AddQuartzSchedulerJob<T>(this IServiceCollection services) where T : IJob
-        {
-            var job = QuartzJobHelper.GetJob<T>();
-
-            var option = new QuartzSchedulerOption()
-            {
-                JobType = job.JobType,
-                Standby = job.JobSettings.Standby,
-                BeginTime = new DateTime(2000, 1, 1),
-                Trigger = job.JobSettings.Trigger,
-                Cron = job.JobSettings.Cron,
-                IntervalSecond = job.JobSettings.IntervalSecond,
-                RunTimes = job.JobSettings.RunTimes,
-                JobGroup = string.IsNullOrEmpty(job.JobSettings.JobGroup) ? "unclassified" : job.JobSettings.JobGroup,
-                JobName = job.JobSettings.JobName
-            };
 
             services.AddScoped(job.JobType);
             services.AddSingleton(option);
