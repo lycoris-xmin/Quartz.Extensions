@@ -29,22 +29,28 @@ namespace Lycoris.Quartz
         }
 
         /// <summary>
-        /// 
+        ///
+        /// </summary>
+        /// <param name="type"></param>
+        private static void ValidateJobType(Type type)
+        {
+            if (!type.IsClass || !type.IsPublic || type.IsAbstract)
+                throw new Exception($"the {type.FullName} must be a public class and cannot be an abstract class");
+
+            if (!type.IsSubclassOf(typeof(BaseQuartzJob)) && !typeof(IJob).IsAssignableFrom(type))
+                throw new Exception($"the {type.FullName} must be subclass of 'BaseQuartzJob' or assignable from 'IJob'");
+        }
+
+        /// <summary>
+        ///
         /// </summary>
         /// <param name="types"></param>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
         internal static List<QuartzJobType> GetJobs(params Type[] types)
         {
-            var modifierList = types.Where(x => !x.IsClass || !x.IsPublic || x.IsAbstract).Select(x => x.FullName).ToList() ?? new List<string>();
-
-            if (modifierList.Any())
-                throw new Exception($"the [{string.Join(",", modifierList)}] must be a public class and cannot be a abstract class");
-
-            var jobClass = types.Where(x => x.IsSubclassOf(typeof(BaseQuartzJob)) && typeof(IJob).IsAssignableFrom(x)).Select(x => x.FullName).ToList() ?? new List<string>();
-
-            if (jobClass.Any())
-                throw new Exception($"the [{string.Join(",", jobClass)}] muse be subclass of 'BaseQuartzJob' or assignable from 'IJob'");
+            foreach (var type in types)
+                ValidateJobType(type);
 
             var jobjTypes = types.Select(x => new QuartzJobType()
             {
@@ -74,11 +80,7 @@ namespace Lycoris.Quartz
         /// <param name="checkAttribute"></param>
         internal static QuartzJobType GetJob(Type type, bool checkAttribute = true)
         {
-            if (!type.IsClass || !type.IsPublic || type.IsAbstract)
-                throw new Exception($"the {type.FullName} must be a public class and cannot be a abstract class");
-
-            if (!type.IsSubclassOf(typeof(BaseQuartzJob)) && !typeof(IJob).IsAssignableFrom(type))
-                throw new Exception($"the {type.FullName} muse be subclass of 'BaseQuartzJob' or assignable from 'IJob'");
+            ValidateJobType(type);
 
             var settings = type.GetCustomAttribute<QuartzJobAttribute>();
             if (checkAttribute && settings == null)
