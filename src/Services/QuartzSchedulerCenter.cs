@@ -320,7 +320,7 @@ namespace Lycoris.Quartz.Services
             //检查任务是否存在
             var job = new JobKey(jobKey, jobGroup);
             if (!await scheduler.CheckExists(job))
-                throw new Exception($"this job {jobKey} already exists");
+                throw new Exception($"this job {jobKey} does not exist");
 
             var jobDetail = await scheduler.GetJobDetail(job);
             if (jobDetail != null)
