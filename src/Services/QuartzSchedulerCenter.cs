@@ -59,17 +59,17 @@ namespace Lycoris.Quartz.Services
 
                 scheduler.JobFactory = jobFactory;
 
-                var schedulerListener = _serviceProvider.GetService<ISchedulerListener>();
-                if (schedulerListener != null)
-                    scheduler.ListenerManager.AddSchedulerListener(schedulerListener);
+                var schedulerListeners = _serviceProvider.GetServices<ISchedulerListener>();
+                foreach (var listener in schedulerListeners)
+                    scheduler.ListenerManager.AddSchedulerListener(listener);
 
-                var jobListener = _serviceProvider.GetService<IJobListener>();
-                if (jobListener != null)
-                    scheduler.ListenerManager.AddJobListener(jobListener);
+                var jobListeners = _serviceProvider.GetServices<IJobListener>();
+                foreach (var listener in jobListeners)
+                    scheduler.ListenerManager.AddJobListener(listener);
 
-                var triggerListener = _serviceProvider.GetService<ITriggerListener>();
-                if (triggerListener != null)
-                    scheduler.ListenerManager.AddTriggerListener(triggerListener);
+                var triggerListeners = _serviceProvider.GetServices<ITriggerListener>();
+                foreach (var listener in triggerListeners)
+                    scheduler.ListenerManager.AddTriggerListener(listener);
 
                 await scheduler.Start();
             }

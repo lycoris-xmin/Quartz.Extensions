@@ -1,7 +1,8 @@
 ﻿using Lycoris.Quartz.Listener;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Quartz;
+using System;
+using System.Collections.Generic;
 
 namespace Lycoris.Quartz
 {
@@ -42,6 +43,10 @@ namespace Lycoris.Quartz
         /// </summary>
         public System.Collections.Specialized.NameValueCollection Properties { get; } = new System.Collections.Specialized.NameValueCollection();
 
+        internal List<Type> SchedulerListenerTypes { get; } = new List<Type>();
+        internal List<Type> JobListenerTypes { get; } = new List<Type>();
+        internal List<Type> TriggerListenerTypes { get; } = new List<Type>();
+
         /// <summary>
         /// ctor
         /// </summary>
@@ -51,33 +56,27 @@ namespace Lycoris.Quartz
         /// <summary>
         /// 添加调度器监听
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public QuartzBuilder AddSchedulerListener<T>() where T : SchedulerListener
         {
-            services.TryAddSingleton<ISchedulerListener, T>();
+            SchedulerListenerTypes.Add(typeof(T));
             return this;
         }
 
         /// <summary>
         /// 添加调度任务监听
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public QuartzBuilder AddJobListener<T>() where T : JobListener
         {
-            services.TryAddSingleton<IJobListener, T>();
+            JobListenerTypes.Add(typeof(T));
             return this;
         }
 
         /// <summary>
         /// 添加调度触发器监听
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
         public QuartzBuilder AddTriggerListener<T>() where T : TriggerListener
         {
-            services.TryAddSingleton<ITriggerListener, T>();
+            TriggerListenerTypes.Add(typeof(T));
             return this;
         }
 

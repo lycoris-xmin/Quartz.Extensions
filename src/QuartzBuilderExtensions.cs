@@ -79,6 +79,15 @@ namespace Lycoris.Quartz
 
             services.TryAddSingleton<IJobListener, JobListener>();
 
+            foreach (var type in buidler.SchedulerListenerTypes)
+                services.AddSingleton(typeof(ISchedulerListener), type);
+
+            foreach (var type in buidler.JobListenerTypes)
+                services.AddSingleton(typeof(IJobListener), type);
+
+            foreach (var type in buidler.TriggerListenerTypes)
+                services.AddSingleton(typeof(ITriggerListener), type);
+
             if (buidler.EnableRunStandbyJobOnApplicationStart)
                 services.AddHostedService<DefaultQuartzJobHostedService>();
 
