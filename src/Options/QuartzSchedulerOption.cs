@@ -84,5 +84,11 @@ namespace Lycoris.Quartz.Options
         /// 默认：false
         /// </summary>
         public bool DisallowConcurrentExecution { get; set; } = false;
+
+        /// <summary>
+        /// 触发器优先级，数值越大优先级越高
+        /// 默认：5
+        /// </summary>
+        public int Priority { get; set; } = 5;
     }
 }

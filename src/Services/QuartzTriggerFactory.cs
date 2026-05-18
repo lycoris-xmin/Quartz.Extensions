@@ -9,8 +9,9 @@ namespace Lycoris.Quartz.Services
         internal static ITrigger CreateCronTrigger(QuartzSchedulerOption sche)
         {
             var trigger = TriggerBuilder.Create();
-            trigger = trigger.WithIdentity(sche.JobName, sche.JobGroup);
-            trigger = trigger.StartAt(sche.BeginTime);
+            trigger = trigger.WithIdentity(sche.JobName, sche.JobGroup)
+                             .StartAt(sche.BeginTime)
+                             .WithPriority(sche.Priority);
 
             if (sche.EndTime.HasValue)
                 trigger = trigger.EndAt(sche.EndTime);
@@ -27,7 +28,8 @@ namespace Lycoris.Quartz.Services
         {
             var triggerBuilder = TriggerBuilder.Create();
             triggerBuilder = triggerBuilder.WithIdentity(sche.JobName, sche.JobGroup)
-                                           .StartAt(sche.BeginTime);
+                                           .StartAt(sche.BeginTime)
+                                           .WithPriority(sche.Priority);
 
             if (sche.EndTime.HasValue)
                 triggerBuilder = triggerBuilder.EndAt(sche.EndTime);
