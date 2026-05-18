@@ -7,7 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A5331AFB-88E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{6E1748EA-7C5D-477A-90B0-A9C87E55F1A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lycoris.Quartz", "src\Lycoris.Quartz\Lycoris.Quartz.csproj", "{86A80C6F-41F3-4BF3-816C-C5341754FE97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lycoris.Quartz", "src\Lycoris.Quartz.csproj", "{86A80C6F-41F3-4BF3-816C-C5341754FE97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QuartzSample", "samples\QuartzSample\QuartzSample.csproj", "{834F2C98-53F3-4D6F-8B07-77CB141E3CA8}"
 EndProject
