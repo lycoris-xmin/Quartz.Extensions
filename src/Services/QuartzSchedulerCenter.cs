@@ -82,21 +82,14 @@ namespace Lycoris.Quartz.Services
         /// </summary>
         public async Task<bool> StopScheduleAsync()
         {
-            try
+            // 判断调度是否已经关闭
+            if (!scheduler.InStandbyMode)
             {
-                // 判断调度是否已经关闭
-                if (!scheduler.InStandbyMode)
-                {
-                    //TODO  注意：Shutdown后Start会报错,所以这里使用暂停。
-                    await scheduler.Standby();
-                }
+                //TODO  注意：Shutdown后Start会报错,所以这里使用暂停。
+                await scheduler.Standby();
+            }
 
-                return !scheduler.InStandbyMode;
-            }
-            catch
-            {
-                throw;
-            }
+            return !scheduler.InStandbyMode;
         }
 
         /// <summary>
@@ -367,7 +360,19 @@ namespace Lycoris.Quartz.Services
         /// <param name="jobKey"></param>
         /// <param name="jobGroup"></param>
         /// <returns></returns>
+        [Obsolete("Use RemoveJobAsync instead")]
         public async Task RemoveobAsync(string jobKey, string jobGroup = "")
+        {
+            await RemoveJobAsync(jobKey, jobGroup);
+        }
+
+        /// <summary>
+        /// 移除任务
+        /// </summary>
+        /// <param name="jobKey"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        public async Task RemoveJobAsync(string jobKey, string jobGroup = "")
         {
             if (string.IsNullOrEmpty(jobGroup))
                 jobGroup = QuartzConstant.JOB_DEFAULT_GROUP;

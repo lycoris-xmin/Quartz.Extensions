@@ -7,7 +7,13 @@ namespace Lycoris.Quartz
     /// <summary>
     /// 
     /// </summary>
-    public static class QuartzExtention
+    [Obsolete("Use QuartzExtension instead")]
+    public static class QuartzExtention { }
+
+    /// <summary>
+    ///
+    /// </summary>
+    public static class QuartzExtension
     {
         /// <summary>
         /// 获取当前任务运行唯一Id

@@ -1,5 +1,6 @@
 ﻿using Lycoris.Quartz.Options;
 using Quartz;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -129,7 +130,16 @@ namespace Lycoris.Quartz
         /// <param name="jobKey"></param>
         /// <param name="jobGroup"></param>
         /// <returns></returns>
+        [Obsolete("Use RemoveJobAsync instead")]
         Task RemoveobAsync(string jobKey, string jobGroup = "");
+
+        /// <summary>
+        /// 移除任务
+        /// </summary>
+        /// <param name="jobKey"></param>
+        /// <param name="jobGroup"></param>
+        /// <returns></returns>
+        Task RemoveJobAsync(string jobKey, string jobGroup = "");
 
         /// <summary>
         /// 立即执行一次
