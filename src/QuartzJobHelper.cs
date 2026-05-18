@@ -36,7 +36,7 @@ namespace Lycoris.Quartz
         /// <exception cref="Exception"></exception>
         internal static List<QuartzJobType> GetJobs(params Type[] types)
         {
-            var modifierList = types.Where(x => !x.IsClass || x.IsPublic || x.IsAbstract).Select(x => x.FullName).ToList() ?? new List<string>();
+            var modifierList = types.Where(x => !x.IsClass || !x.IsPublic || x.IsAbstract).Select(x => x.FullName).ToList() ?? new List<string>();
 
             if (modifierList.Any())
                 throw new Exception($"the [{string.Join(",", modifierList)}] must be a public class and cannot be a abstract class");
