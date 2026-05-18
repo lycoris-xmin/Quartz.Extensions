@@ -18,6 +18,31 @@ namespace Lycoris.Quartz
         public int ThreadCount { get; set; } = 10;
 
         /// <summary>
+        /// 调度器实例名称
+        /// </summary>
+        public string InstanceName { get; set; } = "QuartzScheduler";
+
+        /// <summary>
+        /// 表前缀（用于ADO JobStore）
+        /// </summary>
+        public string TablePrefix { get; set; } = "QRTZ_";
+
+        /// <summary>
+        /// JobStore 类型全名（如 "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz"）
+        /// </summary>
+        public string JobStoreType { get; set; }
+
+        /// <summary>
+        /// 数据源连接字符串名称
+        /// </summary>
+        public string DataSource { get; set; }
+
+        /// <summary>
+        /// 自定义 Quartz 属性集合
+        /// </summary>
+        public System.Collections.Specialized.NameValueCollection Properties { get; } = new System.Collections.Specialized.NameValueCollection();
+
+        /// <summary>
         /// ctor
         /// </summary>
         /// <param name="services"></param>

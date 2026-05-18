@@ -58,8 +58,21 @@ namespace Lycoris.Quartz
             {
                 var options = new NameValueCollection
                 {
-                    { "quartz.threadPool.ThreadCount", buidler.ThreadCount.ToString() }
+                    { "quartz.threadPool.ThreadCount", buidler.ThreadCount.ToString() },
+                    { "quartz.scheduler.instanceName", buidler.InstanceName }
                 };
+
+                if (!string.IsNullOrEmpty(buidler.JobStoreType))
+                    options["quartz.jobStore.type"] = buidler.JobStoreType;
+
+                if (!string.IsNullOrEmpty(buidler.TablePrefix))
+                    options["quartz.jobStore.tablePrefix"] = buidler.TablePrefix;
+
+                if (!string.IsNullOrEmpty(buidler.DataSource))
+                    options["quartz.jobStore.dataSource"] = buidler.DataSource;
+
+                foreach (string key in buidler.Properties.Keys)
+                    options[key] = buidler.Properties[key];
 
                 return new StdSchedulerFactory(options);
             }).AddBaseQuartzSchedulerCenter();
