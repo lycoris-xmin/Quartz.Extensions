@@ -176,6 +176,25 @@ namespace Lycoris.Quartz
         }
 
         /// <summary>
+        /// 从程序集中扫描并注册所有带 QuartzJobAttribute 的调度任务
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="assembly"></param>
+        /// <returns></returns>
+        public static IServiceCollection AddQuartzSchedulerJobsFromAssembly(this IServiceCollection services, System.Reflection.Assembly assembly)
+        {
+            var jobs = QuartzJobHelper.GetJobsByAssembly(assembly);
+
+            foreach (var item in jobs)
+            {
+                services.AddScoped(item.JobType);
+                services.AddSingleton(ToSchedulerOption(item));
+            }
+
+            return services;
+        }
+
+        /// <summary>
         /// 将 QuartzJobType 映射为 QuartzSchedulerOption
         /// </summary>
         /// <param name="job"></param>

@@ -14,7 +14,7 @@ namespace Lycoris.Quartz
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns></returns>
-        internal static List<QuartzJobType> GetJobsByAssembly(Assembly assembly)
+        public static List<QuartzJobType> GetJobsByAssembly(Assembly assembly)
         {
             var jobjTypes = assembly.GetTypes().Where(x => x.IsClass && x.IsPublic && !x.IsAbstract)
                             .Where(x => x.IsSubclassOf(typeof(BaseQuartzJob)) || typeof(IJob).IsAssignableFrom(x))
