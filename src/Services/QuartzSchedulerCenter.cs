@@ -523,10 +523,9 @@ namespace Lycoris.Quartz.Services
 
             // 作业触发器
             if (sche.CronRunOnProceed)
-                trigger.WithCronSchedule(sche.Cron, cronScheduleBuilder => cronScheduleBuilder.WithMisfireHandlingInstructionFireAndProceed());
+                trigger.WithCronSchedule(sche.Cron, b => b.WithMisfireHandlingInstructionFireAndProceed());
             else
-                trigger.WithCronSchedule(sche.Cron, cronScheduleBuilder => cronScheduleBuilder.WithMisfireHandlingInstructionFireAndProceed());
-            //WithMisfireHandlingInstructionDoNothing
+                trigger.WithCronSchedule(sche.Cron, b => b.WithMisfireHandlingInstructionDoNothing());
 
             return trigger.ForJob(sche.JobName, sche.JobGroup).Build();
         }
