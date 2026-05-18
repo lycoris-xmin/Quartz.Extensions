@@ -78,5 +78,11 @@ namespace Lycoris.Quartz.Options
         /// 如果错过了某次调度（比如程序不在运行，或调度器尚未启动），那么启动后立即执行一次任务，然后按原计划继续执行。
         /// </summary>
         public bool CronRunOnProceed { get; set; } = false;
+
+        /// <summary>
+        /// 禁止并发执行（只有上一个任务完成才会执行下一次任务）
+        /// 默认：false
+        /// </summary>
+        public bool DisallowConcurrentExecution { get; set; } = false;
     }
 }

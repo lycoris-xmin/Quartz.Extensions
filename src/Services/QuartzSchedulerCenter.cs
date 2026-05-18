@@ -152,15 +152,19 @@ namespace Lycoris.Quartz.Services
 
             var jobBuilder = JobBuilder.Create(sche.JobType);
 
-            // 定义这个工作,并将其绑定到我们的IJob实现类                
-            var job = jobBuilder.UsingJobData(QuartzConstant.JOB_NAME, sche.JobName)
-                                .UsingJobDataIf(!string.IsNullOrEmpty(sche.JsonMap), QuartzConstant.JSON_MAP, sche.JsonMap)
-                                .UsingJobData(QuartzConstant.JOB_ARGS, sche.Args)
-                                .UsingJobData(QuartzConstant.JOB_OPTIONS, Newtonsoft.Json.JsonConvert.SerializeObject(sche))
-                                .UsingJobData(QuartzConstant.JOB_RUN_COUNT, 0L)
-                                .WithDescription(sche.Remark)
-                                .WithIdentity(sche.JobName, sche.JobGroup)
-                                .Build();
+            // 定义这个工作,并将其绑定到我们的IJob实现类
+            jobBuilder = jobBuilder.UsingJobData(QuartzConstant.JOB_NAME, sche.JobName)
+                                   .UsingJobDataIf(!string.IsNullOrEmpty(sche.JsonMap), QuartzConstant.JSON_MAP, sche.JsonMap)
+                                   .UsingJobData(QuartzConstant.JOB_ARGS, sche.Args)
+                                   .UsingJobData(QuartzConstant.JOB_OPTIONS, Newtonsoft.Json.JsonConvert.SerializeObject(sche))
+                                   .UsingJobData(QuartzConstant.JOB_RUN_COUNT, 0L)
+                                   .WithDescription(sche.Remark)
+                                   .WithIdentity(sche.JobName, sche.JobGroup);
+
+            if (sche.DisallowConcurrentExecution)
+                jobBuilder.DisallowConcurrentExecution();
+
+            var job = jobBuilder.Build();
 
             var trigger = sche.Trigger == QuartzTriggerEnum.CRON
                 ? QuartzTriggerFactory.CreateCronTrigger(sche)
