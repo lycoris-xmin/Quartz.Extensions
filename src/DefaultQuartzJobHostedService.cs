@@ -35,7 +35,7 @@ namespace Lycoris.Quartz
         {
             await _quartzSchedulerCenter.StartScheduleAsync();
 
-            if (_options != null || _options.Count() > 0)
+            if (_options != null && _options.Any())
             {
                 foreach (var item in _options.Where(x => x.Standby == false))
                     await _quartzSchedulerCenter.AddJobAsync(item);
