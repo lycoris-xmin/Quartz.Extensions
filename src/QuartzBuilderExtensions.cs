@@ -82,19 +82,7 @@ namespace Lycoris.Quartz
         {
             var job = QuartzJobHelper.GetJob<T>();
 
-            var option = new QuartzSchedulerOption()
-            {
-                JobType = job.JobType,
-                Standby = job.JobSettings.Standby,
-                BeginTime = new DateTime(2000, 1, 1),
-                Trigger = job.JobSettings.Trigger,
-                Cron = job.JobSettings.Cron,
-                IntervalSecond = job.JobSettings.IntervalSecond,
-                RunTimes = job.JobSettings.RunTimes,
-                JobGroup = string.IsNullOrEmpty(job.JobSettings.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : job.JobSettings.JobGroup,
-                JobName = job.JobSettings.JobName,
-                CronRunOnProceed = job.JobSettings.CronRunOnProceed
-            };
+            var option = ToSchedulerOption(job);
 
             services.AddScoped(job.JobType);
             services.AddSingleton(option);
@@ -117,19 +105,7 @@ namespace Lycoris.Quartz
                 {
                     services.AddScoped(item.JobType);
 
-                    var option = new QuartzSchedulerOption()
-                    {
-                        JobType = item.JobType,
-                        Standby = item.JobSettings.Standby,
-                        BeginTime = new DateTime(2000, 1, 1),
-                        Trigger = item.JobSettings.Trigger,
-                        Cron = item.JobSettings.Cron,
-                        IntervalSecond = item.JobSettings.IntervalSecond,
-                        RunTimes = item.JobSettings.RunTimes,
-                        JobGroup = string.IsNullOrEmpty(item.JobSettings.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : item.JobSettings.JobGroup,
-                        JobName = item.JobSettings.JobName,
-                        CronRunOnProceed = item.JobSettings.CronRunOnProceed
-                    };
+                    var option = ToSchedulerOption(item);
 
                     services.AddSingleton(option);
                 }
@@ -184,6 +160,29 @@ namespace Lycoris.Quartz
             services.AddSingleton(option);
 
             return services;
+        }
+
+        /// <summary>
+        /// 将 QuartzJobType 映射为 QuartzSchedulerOption
+        /// </summary>
+        /// <param name="job"></param>
+        /// <returns></returns>
+        private static QuartzSchedulerOption ToSchedulerOption(QuartzJobType job)
+        {
+            var s = job.JobSettings;
+            return new QuartzSchedulerOption
+            {
+                JobType = job.JobType,
+                Standby = s.Standby,
+                BeginTime = new DateTime(2000, 1, 1),
+                Trigger = s.Trigger,
+                Cron = s.Cron,
+                IntervalSecond = s.IntervalSecond,
+                RunTimes = s.RunTimes,
+                JobGroup = string.IsNullOrEmpty(s.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : s.JobGroup,
+                JobName = s.JobName,
+                CronRunOnProceed = s.CronRunOnProceed
+            };
         }
     }
 }
