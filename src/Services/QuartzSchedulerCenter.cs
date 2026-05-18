@@ -163,8 +163,8 @@ namespace Lycoris.Quartz.Services
                                 .Build();
 
             var trigger = sche.Trigger == QuartzTriggerEnum.CRON
-                ? CreateCronTrigger(sche)
-                : CreateSimpleTrigger(sche);
+                ? QuartzTriggerFactory.CreateCronTrigger(sche)
+                : QuartzTriggerFactory.CreateSimpleTrigger(sche);
 
             // 安排触发器开始作业
             await scheduler.ScheduleJob(job, trigger);
@@ -508,67 +508,6 @@ namespace Lycoris.Quartz.Services
             data.RunCount = jobDetail.JobDataMap.GetLong(QuartzConstant.JOB_RUN_COUNT);
 
             return data;
-        }
-
-        /// <summary>
-        /// 创建类型Cron的触发器
-        /// </summary>
-        /// <param name="sche"></param>
-        /// <returns></returns>
-        private static ITrigger CreateCronTrigger(QuartzSchedulerOption sche)
-        {
-            var trigger = TriggerBuilder.Create();
-            trigger = trigger.WithIdentity(sche.JobName, sche.JobGroup);
-
-            //开始时间
-            trigger = trigger.StartAt(sche.BeginTime);
-
-            //结束时间
-            if (sche.EndTime.HasValue)
-                trigger = trigger.EndAt(sche.EndTime);
-
-            // 作业触发器
-            if (sche.CronRunOnProceed)
-                trigger.WithCronSchedule(sche.Cron, b => b.WithMisfireHandlingInstructionFireAndProceed());
-            else
-                trigger.WithCronSchedule(sche.Cron, b => b.WithMisfireHandlingInstructionDoNothing());
-
-            return trigger.ForJob(sche.JobName, sche.JobGroup).Build();
-        }
-
-        /// <summary>
-        /// 创建类型Simple的触发器
-        /// </summary>
-        /// <param name="sche"></param>
-        /// <returns></returns>
-        private static ITrigger CreateSimpleTrigger(QuartzSchedulerOption sche)
-        {
-            var triggerBulider = TriggerBuilder.Create();
-
-            triggerBulider = triggerBulider.WithIdentity(sche.JobName, sche.JobGroup)
-                                           .StartAt(sche.BeginTime);
-
-            if (sche.EndTime.HasValue)
-                triggerBulider = triggerBulider.EndAt(sche.EndTime);
-
-            triggerBulider = triggerBulider.WithSimpleSchedule(x =>
-            {
-                if (sche.RunTimes > 0)
-                {
-                    x.WithIntervalInSeconds(sche.IntervalSecond)//执行时间间隔,单位秒
-                     .WithRepeatCount(sche.RunTimes)//执行次数、默认从0开始
-                     .WithMisfireHandlingInstructionFireNow();
-                }
-                else
-                {
-                    //执行时间间隔,单位秒
-                    x.WithIntervalInSeconds(sche.IntervalSecond)
-                     .RepeatForever()//无限循环
-                     .WithMisfireHandlingInstructionFireNow();
-                }
-            });
-
-            return triggerBulider.ForJob(sche.JobName, sche.JobGroup).Build();
         }
 
         /// <summary>
