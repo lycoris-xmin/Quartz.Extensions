@@ -6,8 +6,7 @@
 		<Authors>lycoris</Authors>
 		<PackageIcon>
 		</PackageIcon>
-		<PackageReadmeFile>
-		</PackageReadmeFile>
+		<PackageReadmeFile>Readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/lycoris-xmin/Quartz.Extensions</RepositoryUrl>
 		<Description>基于Quartz做了一层简单封装，支持Scoped生命周期直接在构造函数注入,简化了使用成本。</Description>
 		<PackageId>Lycoris.Quartz</PackageId>
@@ -15,6 +14,16 @@
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\Readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.8" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
