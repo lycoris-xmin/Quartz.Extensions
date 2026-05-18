@@ -202,7 +202,8 @@ namespace Lycoris.Quartz.Services
                 RunTimes = 1,
                 BeginTime = new DateTime(2000, 1, 1),
                 JobName = option.JobName,
-                JobGroup = string.IsNullOrEmpty(option.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : option.JobGroup
+                JobGroup = string.IsNullOrEmpty(option.JobGroup) ? QuartzConstant.JOB_DEFAULT_GROUP : option.JobGroup,
+                JsonMap = QuartzConstant.ONCE_JOB
             });
         }
 
