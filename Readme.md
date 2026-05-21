@@ -340,11 +340,15 @@ builder.Services.AddQuartzSchedulerCenter(opt =>
 
 ## 数据库持久化
 
+> 默认使用内存 RAM JobStore，无需额外配置。仅在需要持久化调度状态（任务跨重启保留、集群部署等）时才启用数据库 JobStore。
+
 ```csharp
 builder.Services.AddQuartzSchedulerCenter(opt =>
 {
-    // SQL Server
+    // 启用数据库持久化（设置此属性后，TablePrefix 和 DataSource 才会生效）
     opt.JobStoreType = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
+
+    // SQL Server
     opt.TablePrefix = "QRTZ_";
     opt.DataSource = "default";
     opt.Properties["quartz.jobStore.driverDelegateType"] =
@@ -396,9 +400,9 @@ MySQL / PostgreSQL / Oracle 改对应的 `driverDelegateType` 和 `provider` 即
 | `ThreadCount` | int | `10` | 线程池大小 |
 | `InstanceName` | string | `"QuartzScheduler"` | 调度器实例名 |
 | `EnableRunStandbyJobOnApplicationStart` | bool | `false` | 启动时自动运行非待机任务 |
-| `JobStoreType` | string | null | JobStore 全限定类型名 |
-| `TablePrefix` | string | `"QRTZ_"` | 数据表前缀 |
-| `DataSource` | string | null | 数据源名称 |
+| `JobStoreType` | string | null | JobStore 全限定类型名，不设置则使用内存 RAM JobStore |
+| `TablePrefix` | string | `"QRTZ_"` | 数据表前缀，仅在 `JobStoreType` 不为空时生效 |
+| `DataSource` | string | null | 数据源名称，仅在 `JobStoreType` 不为空时生效 |
 | `Properties` | NameValueCollection | 空 | 自定义 Quartz 原生属性 |
 
 ---
@@ -412,6 +416,7 @@ MySQL / PostgreSQL / Oracle 改对应的 `driverDelegateType` 和 `provider` 即
 - **`DisallowConcurrentExecution`** 可通过特性或 Fluent API 设置，效果相同。
 - **`CronRunOnProceed`**：`true` = 错过调度后补偿执行；`false` = 跳过，等待下一次。
 - **程序停止时调度任务不会自动迁移**：不使用数据库持久化时，所有调度状态仅存于内存。
+- **数据库持久化默认关闭**：只有显式设置 `opt.JobStoreType` 后，`TablePrefix` 和 `DataSource` 等相关配置才会写入 Quartz，否则使用内存 RAM JobStore。
 - **API 兼容**：`RemoveobAsync`（拼写错误）已标记 `[Obsolete]`，请使用 `RemoveJobAsync`。`QuartzExtention` 已重命名为 `QuartzExtension`。
 - **目标框架** `netstandard2.0`，兼容 .NET Framework 4.6.1+ 和 .NET Core 2.0+。
 
