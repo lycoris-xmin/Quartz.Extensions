@@ -428,6 +428,7 @@ builder.Services.AddQuartzSchedulerCenter(opt =>
     opt.Properties["quartz.dataSource.default.connectionString"] =
         "Data Source=quartz.db;Version=3;";
 });
+```
 
 各数据库需额外安装对应的 ADO.NET 驱动包：
 
