@@ -342,24 +342,101 @@ builder.Services.AddQuartzSchedulerCenter(opt =>
 
 > 默认使用内存 RAM JobStore，无需额外配置。仅在需要持久化调度状态（任务跨重启保留、集群部署等）时才启用数据库 JobStore。
 
+### SQL Server
+
 ```csharp
 builder.Services.AddQuartzSchedulerCenter(opt =>
 {
-    // 启用数据库持久化（设置此属性后，TablePrefix 和 DataSource 才会生效）
+    // 启用 ADO.NET JobStore（设置后 TablePrefix、DataSource 才会生效）
     opt.JobStoreType = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
-
-    // SQL Server
+    // 数据库表名前缀，默认 QRTZ_
     opt.TablePrefix = "QRTZ_";
+    // 数据源名称，需与下方 dataSource.{name} 的 {name} 一致
     opt.DataSource = "default";
+    // 数据库方言委托，负责生成各数据库特定的 SQL 语句
     opt.Properties["quartz.jobStore.driverDelegateType"] =
         "Quartz.Impl.AdoJobStore.SqlServerDelegate, Quartz";
+    // ADO.NET 驱动提供程序
     opt.Properties["quartz.dataSource.default.provider"] = "SqlServer";
+    // 数据库连接字符串
     opt.Properties["quartz.dataSource.default.connectionString"] =
         "Server=.;Database=Quartz;Trusted_Connection=true;";
 });
 ```
 
-MySQL / PostgreSQL / Oracle 改对应的 `driverDelegateType` 和 `provider` 即可。
+### MySQL
+
+```csharp
+builder.Services.AddQuartzSchedulerCenter(opt =>
+{
+    // 启用 ADO.NET JobStore（设置后 TablePrefix、DataSource 才会生效）
+    opt.JobStoreType = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
+    // 数据库表名前缀，默认 QRTZ_
+    opt.TablePrefix = "QRTZ_";
+    // 数据源名称，需与下方 dataSource.{name} 的 {name} 一致
+    opt.DataSource = "default";
+    // 数据库方言委托，负责生成各数据库特定的 SQL 语句
+    opt.Properties["quartz.jobStore.driverDelegateType"] =
+        "Quartz.Impl.AdoJobStore.MySQLDelegate, Quartz";
+    // ADO.NET 驱动提供程序
+    opt.Properties["quartz.dataSource.default.provider"] = "MySql";
+    // 数据库连接字符串
+    opt.Properties["quartz.dataSource.default.connectionString"] =
+        "Server=localhost;Database=quartz;Uid=root;Pwd=your_password;";
+});
+```
+
+### PostgreSQL
+
+```csharp
+builder.Services.AddQuartzSchedulerCenter(opt =>
+{
+    // 启用 ADO.NET JobStore（设置后 TablePrefix、DataSource 才会生效）
+    opt.JobStoreType = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
+    // 数据库表名前缀，默认 QRTZ_
+    opt.TablePrefix = "QRTZ_";
+    // 数据源名称，需与下方 dataSource.{name} 的 {name} 一致
+    opt.DataSource = "default";
+    // 数据库方言委托，负责生成各数据库特定的 SQL 语句
+    opt.Properties["quartz.jobStore.driverDelegateType"] =
+        "Quartz.Impl.AdoJobStore.PostgreSQLDelegate, Quartz";
+    // ADO.NET 驱动提供程序
+    opt.Properties["quartz.dataSource.default.provider"] = "Npgsql";
+    // 数据库连接字符串
+    opt.Properties["quartz.dataSource.default.connectionString"] =
+        "Host=localhost;Database=quartz;Username=postgres;Password=your_password;";
+});
+```
+
+### SQLite
+
+```csharp
+builder.Services.AddQuartzSchedulerCenter(opt =>
+{
+    // 启用 ADO.NET JobStore（设置后 TablePrefix、DataSource 才会生效）
+    opt.JobStoreType = "Quartz.Impl.AdoJobStore.JobStoreTX, Quartz";
+    // 数据库表名前缀，默认 QRTZ_
+    opt.TablePrefix = "QRTZ_";
+    // 数据源名称，需与下方 dataSource.{name} 的 {name} 一致
+    opt.DataSource = "default";
+    // 数据库方言委托，负责生成各数据库特定的 SQL 语句
+    opt.Properties["quartz.jobStore.driverDelegateType"] =
+        "Quartz.Impl.AdoJobStore.SQLiteDelegate, Quartz";
+    // ADO.NET 驱动提供程序
+    opt.Properties["quartz.dataSource.default.provider"] = "SQLite";
+    // 数据库连接字符串（Data Source 为 SQLite 文件路径）
+    opt.Properties["quartz.dataSource.default.connectionString"] =
+        "Data Source=quartz.db;Version=3;";
+});
+
+各数据库需额外安装对应的 ADO.NET 驱动包：
+
+| 数据库 | NuGet 包 |
+|--------|----------|
+| SQL Server | `Microsoft.Data.SqlClient`（或 `System.Data.SqlClient`） |
+| MySQL | `MySql.Data`（或 `MySqlConnector`） |
+| PostgreSQL | `Npgsql` |
+| SQLite | `System.Data.SQLite`（或 `Microsoft.Data.Sqlite`） |
 
 建表脚本：[Quartz.NET Database Scripts](https://github.com/quartznet/quartznet/tree/main/database/tables)
 
